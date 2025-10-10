@@ -1,0 +1,54 @@
+name: CI/CD Security Gate
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Security Check - Critical Only
+        id: critical-check
+        uses: your-username/dependabot-security-checker@v1.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          severities: 'critical'
+          output-file: 'critical-alerts.csv'
+          fail-on-alerts: 'true'  # Block deployment on critical alerts
+          
+      - name: Security Check - High/Medium
+        id: high-medium-check
+        uses: your-username/dependabot-security-checker@v1.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          severities: 'high,medium'
+          output-file: 'high-medium-alerts.csv'
+          fail-on-alerts: 'false'  # Don't block, just warn
+          
+      - name: Generate Security Summary
+        run: |
+          echo "## 🔒 Security Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f critical-alerts.csv ]; then
+            critical_count=$(tail -n +2 critical-alerts.csv | wc -l)
+            echo "🚨 **Critical Alerts**: $critical_count" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f high-medium-alerts.csv ]; then
+            high_medium_count=$(tail -n +2 high-medium-alerts.csv | wc -l)
+            echo "⚠️ **High/Medium Alerts**: $high_medium_count" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports-${{ github.run_number }}
+          path: |
+            critical-alerts.csv
+            high-medium-alerts.csv

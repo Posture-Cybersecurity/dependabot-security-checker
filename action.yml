@@ -1,0 +1,25 @@
+name: 'Dependabot Security Checker'
+description: 'Check for open critical/high/medium Dependabot alerts and fail if found'
+author: 'Your Name'
+branding:
+  icon: 'shield'
+  color: 'red'
+inputs:
+  github-token:
+    description: 'GitHub token with security-events:read permission'
+    required: true
+  severities:
+    description: 'Comma-separated list of severities to check (default: critical,high,medium)'
+    required: false
+    default: 'critical,high,medium'
+  output-file:
+    description: 'Output CSV file name (default: dependabot_alerts.csv)'
+    required: false
+    default: 'dependabot_alerts.csv'
+  fail-on-alerts:
+    description: 'Fail the workflow if alerts are found (default: true)'
+    required: false
+    default: 'true'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

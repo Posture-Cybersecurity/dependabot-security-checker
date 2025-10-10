@@ -1,0 +1,58 @@
+name: Advanced Security Check with Notifications
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly security check
+  push:
+    branches: [ main ]
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check Critical/High Alerts Only
+        id: security-check
+        uses: your-username/dependabot-security-checker@v1.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          severities: 'critical,high'
+          output-file: 'critical-alerts.csv'
+          fail-on-alerts: 'false'  # Don't fail, just report
+          
+      - name: Check All Severities
+        id: all-alerts
+        uses: your-username/dependabot-security-checker@v1.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          severities: 'critical,high,medium,low'
+          output-file: 'all-alerts.csv'
+          fail-on-alerts: 'false'
+          
+      - name: Upload Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            critical-alerts.csv
+            all-alerts.csv
+            
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('critical-alerts.csv')) {
+              const content = fs.readFileSync('critical-alerts.csv', 'utf8');
+              const lines = content.split('\n').length - 1; // Subtract header
+              if (lines > 0) {
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: `🚨 **Security Alert**: Found ${lines} critical/high security vulnerabilities. Please review the attached report.`
+                });
+              }
+            }
