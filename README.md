@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check Dependabot Alerts
-        uses: your-username/dependabot-security-checker@v1
+        uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -32,7 +32,7 @@ jobs:
 
 ```yaml
 - name: Check Dependabot Alerts
-  uses: your-username/dependabot-security-checker@v1
+  uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     severities: 'critical,high'  # Only check critical and high

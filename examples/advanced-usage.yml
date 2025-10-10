@@ -14,7 +14,7 @@ jobs:
         
       - name: Check Critical/High Alerts Only
         id: security-check
-        uses: your-username/dependabot-security-checker@v1.0.0
+        uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           severities: 'critical,high'
@@ -23,7 +23,7 @@ jobs:
           
       - name: Check All Severities
         id: all-alerts
-        uses: your-username/dependabot-security-checker@v1.0.0
+        uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           severities: 'critical,high,medium,low'
