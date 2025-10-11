@@ -28,5 +28,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: security-report-${{ github.run_number }}
-          path: security-report
+          path: security-report.csv
           if-no-files-found: ignore
