@@ -20,6 +20,9 @@ on: [push, pull_request]
 jobs:
   security-check:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: read
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Check Dependabot Alerts
@@ -39,6 +42,21 @@ jobs:
     output-file: 'security-report.csv'
     fail-on-alerts: 'true'  # Fail workflow if alerts found
 ```
+
+## Permissions Required
+
+The action requires the following permissions to access Dependabot alerts:
+
+```yaml
+permissions:
+  security-events: read  # Required to read Dependabot alerts
+  contents: read        # Required to read repository contents
+```
+
+**Note**: The default `GITHUB_TOKEN` may not have sufficient permissions. You may need to:
+1. Add the permissions block to your workflow (recommended)
+2. Use a Personal Access Token with `security_events` scope
+3. Use a GitHub App with appropriate permissions
 
 ## Inputs
 

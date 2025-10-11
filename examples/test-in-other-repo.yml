@@ -18,7 +18,7 @@ jobs:
       - name: Test Dependabot Security Checker
         uses: Posture-Cybersecurity/dependabot-security-checker@main  # Use main branch for testing
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.DEPENDABOT_TOKEN }}
           severities: 'critical,high,medium,low'
           output-file: 'security-test-report.csv'
           fail-on-alerts: 'false'  # Don't fail during testing
