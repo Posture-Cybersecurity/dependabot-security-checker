@@ -37,9 +37,9 @@ jobs:
             echo "ℹ️  No CSV file created (no alerts found)"
           fi
           
-      - name: Upload test results
+      - name: Upload Security Report
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: security-report-${{ github.run_number }}
           path: test_alerts.csv
           if-no-files-found: ignore
