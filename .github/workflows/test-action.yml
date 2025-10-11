@@ -23,6 +23,7 @@ jobs:
           fail-on-alerts: 'false'  # Don't fail for testing
           
       - name: Display results
+        if: always()  # Run even if previous step fails
         run: |
           echo "=== Action Test Results ==="
           if [ -f test_alerts.csv ]; then
@@ -31,10 +32,11 @@ jobs:
             echo "📄 First few lines:"
             head -5 test_alerts.csv
           else
-            echo "ℹ️  No CSV file created (no alerts found)"
+            echo "ℹ️  No CSV file created (no alerts found or action failed)"
           fi
           
       - name: Upload Security Report
+        if: always()  # Run even if previous step fails
         uses: actions/upload-artifact@v4
         with:
           name: security-report-${{ github.run_number }}
