@@ -20,7 +20,7 @@ jobs:
         with:
           github-token: ${{ secrets.DEPENDABOT_TOKEN }}
           severities: 'critical,high,medium'
-          output-file: 'test_alerts.csv'
+          output-file: 'security-report.csv'
           fail-on-alerts: 'false'  # Don't fail for testing
           
       - name: Upload Security Report
@@ -28,5 +28,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: security-report-${{ github.run_number }}
-          path: test_alerts.csv
+          path: security-report
           if-no-files-found: ignore
