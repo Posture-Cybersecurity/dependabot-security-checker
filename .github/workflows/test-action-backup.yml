@@ -1,7 +1,7 @@
 name: Test Dependabot Security Checker Action
 
 on:
-  workflow_dispatch:  # Manual trigger for testing
+  workflow_dispatch:  # Manual trigger for   testing
   push:
     branches: [ main ]
   pull_request:
