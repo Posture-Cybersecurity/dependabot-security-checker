@@ -1,7 +1,7 @@
 name: Test Dependabot Security Checker Action
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:  # Manual trigger for testing
   push:
     branches: [ main ]
   pull_request:
@@ -14,20 +14,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Test the action
-        uses: ./  # Use the local action
+      - name: Test the action locally
+        uses: ./  # Use the local action (same repo)
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          severities: 'critical,high'
+          severities: 'critical,high,medium'
           output-file: 'test_alerts.csv'
           fail-on-alerts: 'false'  # Don't fail for testing
           
       - name: Display results
         run: |
-          echo "=== Action Results ==="
+          echo "=== Action Test Results ==="
           if [ -f test_alerts.csv ]; then
-            echo "CSV file created:"
-            cat test_alerts.csv
+            echo "✅ CSV file created successfully"
+            echo "📊 File size: $(wc -l < test_alerts.csv) lines"
+            echo "📄 First few lines:"
+            head -5 test_alerts.csv
           else
-            echo "No CSV file created (no alerts found)"
+            echo "ℹ️  No CSV file created (no alerts found)"
           fi
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test_alerts.csv
+          if-no-files-found: ignore
