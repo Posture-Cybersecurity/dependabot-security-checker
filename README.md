@@ -20,15 +20,12 @@ on: [push, pull_request]
 jobs:
   security-check:
     runs-on: ubuntu-latest
-    permissions:
-      security-events: read
-      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Check Dependabot Alerts
         uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.DEPENDABOT_TOKEN }}
 ```
 
 ### Advanced Usage
@@ -45,18 +42,32 @@ jobs:
 
 ## Permissions Required
 
-The action requires the following permissions to access Dependabot alerts:
+The action requires access to Dependabot alerts. You have two options:
 
+### Option 1: Personal Access Token (Recommended)
+
+1. **Create a Personal Access Token**:
+   - Go to GitHub Settings → Developer settings → Personal access tokens
+   - Generate new token with `repo` and `security_events` scopes
+   - Add it as a repository secret named `DEPENDABOT_TOKEN`
+
+2. **Use in your workflow**:
+   ```yaml
+   - uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
+     with:
+       github-token: ${{ secrets.DEPENDABOT_TOKEN }}
+   ```
+
+### Option 2: Workflow Permissions
+
+Add permissions to your workflow:
 ```yaml
 permissions:
   security-events: read  # Required to read Dependabot alerts
   contents: read        # Required to read repository contents
 ```
 
-**Note**: The default `GITHUB_TOKEN` may not have sufficient permissions. You may need to:
-1. Add the permissions block to your workflow (recommended)
-2. Use a Personal Access Token with `security_events` scope
-3. Use a GitHub App with appropriate permissions
+**Note**: The default `GITHUB_TOKEN` may not have sufficient permissions. Using a Personal Access Token is more reliable.
 
 ## Inputs
 
