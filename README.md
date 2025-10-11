@@ -25,7 +25,7 @@ jobs:
       - name: Check Dependabot Alerts
         uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
         with:
-          github-token: ${{ secrets.DEPENDABOT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Advanced Usage
@@ -34,40 +34,11 @@ jobs:
 - name: Check Dependabot Alerts
   uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
   with:
-    github-token: ${{ secrets.DEPENDABOT_TOKEN }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
     severities: 'critical,high'  # Only check critical and high
     output-file: 'security-report.csv'
     fail-on-alerts: 'true'  # Fail workflow if alerts found
 ```
-
-## Permissions Required
-
-The action requires access to Dependabot alerts. You have two options:
-
-### Option 1: Personal Access Token (Recommended)
-
-1. **Create a Personal Access Token**:
-   - Go to GitHub Settings → Developer settings → Personal access tokens
-   - Generate new token with `repo` and `security_events` scopes
-   - Add it as a repository secret named `DEPENDABOT_TOKEN`
-
-2. **Use in your workflow**:
-   ```yaml
-   - uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
-     with:
-       github-token: ${{ secrets.DEPENDABOT_TOKEN }}
-   ```
-
-### Option 2: Workflow Permissions
-
-Add permissions to your workflow:
-```yaml
-permissions:
-  security-events: read  # Required to read Dependabot alerts
-  contents: read        # Required to read repository contents
-```
-
-**Note**: The default `GITHUB_TOKEN` may not have sufficient permissions. Using a Personal Access Token is more reliable.
 
 ## Inputs
 

@@ -90,127 +90,14 @@ github.getOctokit = () => mockOctokit;
 
 console.log('🧪 Testing Dependabot Security Checker Action Locally...\n');
 
-// Import the main function
-const mainModule = require('./src/index.js');
+// Import and run the main function
+const { run } = require('./src/index.js');
 
-// The run function is called automatically in the module, but we need to override the mocks first
-// Let's just run the test by calling the main logic directly
-async function testAction() {
-  try {
-    // Simulate the main run function
-    const allAlerts = mockAlerts; // Use our mock data
-    console.log(`📈 Total alerts found: ${allAlerts.length}`);
-    
-    // Filter alerts by severity and state
-    const severities = ['critical', 'high', 'medium'];
-    const filteredAlerts = allAlerts.filter(alert => {
-      const severity = alert.security_advisory?.severity?.toLowerCase() || '';
-      const state = alert.state?.toLowerCase() || '';
-      return state === 'open' && severities.includes(severity);
-    });
-    
-    // Generate summary statistics
-    const summary = {
-      total: allAlerts.length,
-      open: allAlerts.filter(a => a.state?.toLowerCase() === 'open').length,
-      closed: allAlerts.filter(a => a.state?.toLowerCase() === 'dismissed').length,
-      bySeverity: {},
-      byScope: {},
-      filtered: filteredAlerts.length,
-      checkedSeverities: severities
-    };
-    
-    // Count by severity
-    allAlerts.forEach(alert => {
-      const severity = alert.security_advisory?.severity?.toLowerCase() || 'unknown';
-      summary.bySeverity[severity] = (summary.bySeverity[severity] || 0) + 1;
-    });
-    
-    // Count by scope
-    allAlerts.forEach(alert => {
-      const scope = alert.dependency?.scope || 'unknown';
-      summary.byScope[scope] = (summary.byScope[scope] || 0) + 1;
-    });
-    
-    // Log summary
-    console.log('📊 === SUMMARY STATISTICS ===');
-    console.log(`📈 Total alerts: ${summary.total}`);
-    console.log(`🔓 Open alerts: ${summary.open}`);
-    console.log(`🔒 Closed alerts: ${summary.closed}`);
-    console.log(`🎯 Filtered alerts (${summary.checkedSeverities.join('/')}): ${summary.filtered}`);
-    
-    console.log('📊 By severity:');
-    Object.entries(summary.bySeverity).forEach(([severity, count]) => {
-      console.log(`  ${severity}: ${count}`);
-    });
-    
-    console.log('📊 By scope:');
-    Object.entries(summary.byScope).forEach(([scope, count]) => {
-      console.log(`  ${scope}: ${count}`);
-    });
-    console.log('========================');
-    
-    if (filteredAlerts.length > 0) {
-      console.log(`🚨 Found ${filteredAlerts.length} open ${severities.join('/')} alerts`);
-      
-      // Create CSV content
-      const csvContent = createCSV(filteredAlerts, summary);
-      require('fs').writeFileSync('test_alerts.csv', csvContent);
-      
-      console.log(`📁 Results saved to test_alerts.csv`);
-    } else {
-      console.log('✅ No open security alerts found');
-    }
-    
-    console.log('\n✅ Local test completed!');
-    console.log('📁 Check if test_alerts.csv was created');
-    
-  } catch (error) {
-    console.error('❌ Test failed:', error.message);
-  }
-}
-
-// Helper function to create CSV
-function createCSV(alerts, summary) {
-  const headers = ['number', 'package', 'severity', 'state', 'dependency_scope', 'created_at', 'url'];
-  const rows = alerts.map(alert => [
-    alert.number,
-    alert.dependency?.package?.name || '',
-    alert.security_advisory?.severity || '',
-    alert.state,
-    alert.dependency?.scope || '',
-    alert.created_at,
-    alert.html_url
-  ]);
-  
-  // Create CSV content
-  let csvContent = [headers, ...rows].map(row => 
-    row.map(field => `"${field}"`).join(',')
-  ).join('\n');
-  
-  // Add summary section at the end
-  if (summary) {
-    csvContent += '\n\n# SUMMARY STATISTICS\n';
-    csvContent += `"Metric","Value"\n`;
-    csvContent += `"Total Alerts","${summary.total}"\n`;
-    csvContent += `"Open Alerts","${summary.open}"\n`;
-    csvContent += `"Closed Alerts","${summary.closed}"\n`;
-    csvContent += `"Filtered Alerts","${summary.filtered}"\n`;
-    csvContent += `"Checked Severities","${summary.checkedSeverities.join(', ')}"\n`;
-    
-    // Add severity breakdown
-    Object.entries(summary.bySeverity).forEach(([severity, count]) => {
-      csvContent += `"Severity: ${severity}","${count}"\n`;
-    });
-    
-    // Add scope breakdown
-    Object.entries(summary.byScope).forEach(([scope, count]) => {
-      csvContent += `"Scope: ${scope}","${count}"\n`;
-    });
-  }
-  
-  return csvContent;
-}
-
-// Run the test
-testAction();
+// Override the run function to use our mocks
+const originalRun = run;
+run().then(() => {
+  console.log('\n✅ Local test completed!');
+  console.log('📁 Check if test_alerts.csv was created');
+}).catch(error => {
+  console.error('❌ Test failed:', error.message);
+});
