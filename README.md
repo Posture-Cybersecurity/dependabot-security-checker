@@ -34,7 +34,7 @@ jobs:
 - name: Check Dependabot Alerts
   uses: Posture-Cybersecurity/dependabot-security-checker@v1.0.0
   with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
+    github-token: ${{ secrets.DEPENDABOT_TOKEN }}
     severities: 'critical,high'  # Only check critical and high
     output-file: 'security-report.csv'
     fail-on-alerts: 'true'  # Fail workflow if alerts found
