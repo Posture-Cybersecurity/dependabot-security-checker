@@ -34,14 +34,13 @@ async function run() {
     const summary = generateSummary(allAlerts, filteredAlerts, severities);
     logSummary(summary);
     
+    // Always create CSV file with results
+    const csvContent = createCSV(filteredAlerts, summary);
+    fs.writeFileSync(outputFile, csvContent);
+    core.info(`📁 Results saved to ${outputFile}`);
+    
     if (filteredAlerts.length > 0) {
       core.warning(`🚨 Found ${filteredAlerts.length} open ${severities.join('/')} alerts`);
-      
-      // Create CSV content with summary
-      const csvContent = createCSV(filteredAlerts, summary);
-      fs.writeFileSync(outputFile, csvContent);
-      
-      core.info(`📁 Results saved to ${outputFile}`);
       
       if (failOnAlerts) {
         core.setFailed(`❌ Found ${filteredAlerts.length} open security alerts`);

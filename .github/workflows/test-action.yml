@@ -15,25 +15,13 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Test the action locally
+        id: test-action
         uses: ./  # Use the local action (same repo)
         with:
           github-token: ${{ secrets.DEPENDABOT_TOKEN }}
           severities: 'critical,high,medium'
           output-file: 'test_alerts.csv'
           fail-on-alerts: 'false'  # Don't fail for testing
-          
-      - name: Display results
-        if: always()  # Run even if previous step fails
-        run: |
-          echo "=== Action Test Results ==="
-          if [ -f test_alerts.csv ]; then
-            echo "✅ CSV file created successfully"
-            echo "📊 File size: $(wc -l < test_alerts.csv) lines"
-            echo "📄 First few lines:"
-            head -5 test_alerts.csv
-          else
-            echo "ℹ️  No CSV file created (no alerts found or action failed)"
-          fi
           
       - name: Upload Security Report
         if: always()  # Run even if previous step fails
