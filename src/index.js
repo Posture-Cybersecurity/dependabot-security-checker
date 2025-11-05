@@ -33,12 +33,12 @@ async function run() {
     // Generate summary statistics
     const summary = generateSummary(allAlerts, filteredAlerts, severities);
     logSummary(summary);
-    
+      
     // Always create CSV file with results
     const csvContent = createCSV(filteredAlerts, summary);
-    fs.writeFileSync(outputFile, csvContent);
+      fs.writeFileSync(outputFile, csvContent);
     core.info(`📁 Results saved to ${outputFile}`);
-    
+      
     if (filteredAlerts.length > 0) {
       core.warning(`🚨 Found ${filteredAlerts.length} open ${severities.join('/')} alerts`);
       
@@ -57,37 +57,18 @@ async function run() {
 }
 
 async function fetchAllAlerts(octokit, owner, repo) {
-  const allAlerts = [];
-  let page = 1;
-  const perPage = 100;
-  
   try {
-    while (true) {
-      core.info(`📄 Fetching page ${page}...`);
-      
-      const response = await octokit.rest.dependabot.listAlertsForRepo({
-        owner,
-        repo,
-        per_page: perPage,
-        page: page
-      });
-      
-      if (!response.data || response.data.length === 0) {
-        break;
-      }
-      
-      allAlerts.push(...response.data);
-      core.info(`📊 Fetched ${response.data.length} alerts from page ${page}`);
-      
-      // If we got fewer alerts than perPage, we've reached the end
-      if (response.data.length < perPage) {
-        break;
-      }
-      
-      page++;
-    }
+    core.info(`📄 Fetching Dependabot alerts (using Link header pagination)...`);
     
-    core.info(`✅ Fetched ${allAlerts.length} total alerts across ${page} pages`);
+    // Use octokit.paginate which automatically handles Link header pagination
+    // The Dependabot alerts API doesn't support the 'page' parameter
+    const allAlerts = await octokit.paginate(octokit.rest.dependabot.listAlertsForRepo, {
+      owner,
+      repo,
+      per_page: 100
+    });
+    
+    core.info(`✅ Fetched ${allAlerts.length} total alerts`);
     return allAlerts;
     
   } catch (error) {
@@ -99,7 +80,7 @@ async function fetchAllAlerts(octokit, owner, repo) {
     } else if (error.status === 401) {
       throw new Error('❌ Authentication failed. Check your GitHub token');
     } else {
-      throw new Error(`❌ Failed to fetch alerts: ${error.message}`);
+      throw new Error(`❌ Failed to fetch alerts: ${error.message} - ${error.documentation_url || ''}`);
     }
   }
 }

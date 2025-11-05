@@ -73,3 +73,4 @@ This directory contains detailed release notes for all versions of the Dependabo
 ---
 
 **Made with ❤️ by Posture Cybersecurity**
+
